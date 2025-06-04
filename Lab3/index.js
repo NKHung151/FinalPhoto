@@ -10,9 +10,7 @@ const CommentRouter = require("./routes/CommentRouter");
 
 dbConnect();
 
-// Đặt static cho images
-app.use("/images", express.static("public/images"));
-
+// CORS middleware
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -20,7 +18,10 @@ app.use(
   })
 );
 
+// Body parser middleware
 app.use(express.json());
+
+// Session middleware
 app.use(
   session({
     secret: "your-secret-key",
@@ -30,14 +31,18 @@ app.use(
   })
 );
 
-// Middleware kiểm tra đăng nhập cho các route không phải GET
+// Static files middleware
+app.use("/images", express.static("public/images"));
+
+// Auth middleware
 app.use((req, res, next) => {
   if (req.method === "GET") {
     return next();
   }
   if (
     req.path.startsWith("/admin") ||
-    req.path === "/"
+    req.path === "/" ||
+    req.path === "/user"
   ) {
     return next();
   }
@@ -48,15 +53,17 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use("/admin", AdminRouter);
 app.use("/user", UserRouter);
 app.use("/photo", PhotoRouter);
+app.use("/admin", AdminRouter);
 app.use("/comment", CommentRouter);
 
+// Root route
 app.get("/", (req, res) => {
   res.send({ message: "Hello from photo-sharing app API!" });
 });
 
+// Start server
 app.listen(8081, () => {
   console.log("server listening on port http://localhost:8081");
 });

@@ -27,7 +27,6 @@ function UserPhotos({ user }) {
         setLoading(false);
       });
   }, [userId]);
- 
 
   const fetchUserIfNeeded = async (id) => {
     if (userCache[id]) return userCache[id];
@@ -153,6 +152,23 @@ function UserPhotos({ user }) {
     setEditValue("");
   };
 
+  const handleDeletePhoto = async (photoId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa ảnh này không?")) return;
+    
+    try {
+      await axios.delete(`http://localhost:8081/photo/${photoId}`, {
+        withCredentials: true
+      });
+      
+      // Cập nhật state để xóa ảnh khỏi UI
+      setPhotos(prev => prev.filter(photo => photo._id !== photoId));
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.error || "Không thể xóa ảnh");
+      console.error("Delete photo error:", err);
+    }
+  };
+
   if (loading) return <Typography>Loading photos...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!photos.length)
@@ -173,6 +189,16 @@ function UserPhotos({ user }) {
           <Typography variant="body1">
             Created on: {formatDate(photo.date_time)}
           </Typography>
+          {user && String(photo.user_id) === String(user._id) && (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleDeletePhoto(photo._id)}
+              style={{ marginTop: "4px", marginBottom: "4px" }}
+            >
+              Delete
+            </Button>
+          )}
           <Typography variant="subtitle2" color="primary">
             Total number of comments: {photo.comment_count}
           </Typography>

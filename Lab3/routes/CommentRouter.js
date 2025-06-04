@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Photo } = require("../db/photoModel");
 
+// Middleware kiểm tra đăng nhập
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -9,13 +10,13 @@ function requireLogin(req, res, next) {
   next();
 }
 
-//Thêm cmt
-router.post("/:id", requireLogin, async (req, res) => {
+//Thêm comment
+router.post("/:photoId", requireLogin, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { photoId } = req.params;
     const { comment } = req.body;
     console.log("Comment request:", {
-      id,
+      photoId,
       comment,
       user: req.session.user?._id,
     });
@@ -24,7 +25,7 @@ router.post("/:id", requireLogin, async (req, res) => {
       return res.status(400).json({ error: "Bình luận không được để trống" });
     }
 
-    const photo = await Photo.findById(id);
+    const photo = await Photo.findById(photoId);
     if (!photo) {
       return res.status(404).json({ error: "Không tìm thấy ảnh" });
     }
@@ -43,7 +44,7 @@ router.post("/:id", requireLogin, async (req, res) => {
       select: "_id first_name last_name",
     });
 
-    console.log("Comment added to photo:", id);
+    console.log("Comment added to photo:", photoId);
     res.json({ message: "Bình luận thành công", comments: photo.comments });
   } catch (err) {
     console.error("Comment error:", err);
@@ -51,7 +52,7 @@ router.post("/:id", requireLogin, async (req, res) => {
   }
 });
 
-//Xóa cmt
+//Xóa comment
 router.delete("/:photoId/:commentId", requireLogin, async (req, res) => {
   try {
     const { photoId, commentId } = req.params;
@@ -88,7 +89,7 @@ router.delete("/:photoId/:commentId", requireLogin, async (req, res) => {
   }
 });
 
-//Sửa cmt
+//Sửa comment
 router.put("/:photoId/:commentId", requireLogin, async (req, res) => {
   try {
     const { photoId, commentId } = req.params;

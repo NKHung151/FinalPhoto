@@ -5,6 +5,7 @@ const User = require("../db/userModel");
 const multer = require("multer");
 const path = require("path");
 
+// Middleware kiểm tra đăng nhập
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -12,6 +13,7 @@ function requireLogin(req, res, next) {
   next();
 }
 
+// Cấu hình multer cho upload ảnh
 const storage = multer.diskStorage({
   destination: "./public/images/",
   filename: (req, file, cb) => {
@@ -56,7 +58,7 @@ router.get("/:user_id", async (req, res) => {
   }
 });
 
-//Thêm ảnh
+// Upload ảnh mới
 router.post("/new", requireLogin, upload.single("photo"), async (req, res) => {
   try {
     if (!req.file) {
@@ -85,6 +87,57 @@ router.post("/new", requireLogin, upload.single("photo"), async (req, res) => {
   } catch (err) {
     console.error("Photo upload error:", err);
     res.status(500).json({ error: "Failed to upload photo" });
+  }
+});
+
+// Xóa ảnh
+router.delete("/:photoId", requireLogin, async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    const user = req.session.user;
+
+    // Tìm ảnh theo ID
+    const photo = await Photo.findById(photoId);
+    if (!photo) {
+      return res.status(404).json({ error: "Không tìm thấy ảnh" });
+    }
+
+    // Kiểm tra quyền xóa ảnh
+    if (photo.user_id.toString() !== user._id.toString()) {
+      return res.status(403).json({ error: "Bạn không có quyền xóa ảnh này" });
+    }
+
+    // Xóa file ảnh từ thư mục
+    const fs = require('fs');
+    const filePath = path.join(__dirname, '..', 'public', 'images', photo.file_name);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Xóa ảnh từ database
+    await Photo.findByIdAndDelete(photoId);
+
+    res.json({ message: "Ảnh đã được xóa thành công" });
+  } catch (err) {
+    console.error("Delete photo error:", err);
+    res.status(500).json({ error: "Không thể xóa ảnh" });
+  }
+});
+
+// Lấy ảnh theo user ID
+router.get("/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const photos = await Photo.find({ user_id: userId })
+      .sort({ date_time: -1 })
+      .populate({
+        path: "comments.user_id",
+        select: "_id first_name last_name",
+      });
+    res.json(photos);
+  } catch (err) {
+    console.error("Get photos error:", err);
+    res.status(500).json({ error: "Failed to get photos" });
   }
 });
 

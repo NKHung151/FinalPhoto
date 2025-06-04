@@ -38,12 +38,8 @@ function AppContent() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("http://localhost:8081/admin/logout", { 
-      method: "POST", 
-      credentials: "include" 
-    });
+    await fetch("http://localhost:8081/admin/logout", { method: "POST", credentials: "include" });
     setUser(null);
-    navigate("/login");
   };
 
   // Khi đăng nhập thành công, chuyển hướng sang trang chi tiết user
