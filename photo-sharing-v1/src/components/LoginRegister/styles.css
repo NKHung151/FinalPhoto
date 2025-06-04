@@ -1,0 +1,13 @@
+.login-form-container {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 16px;
+}
+
+.login-form-container .MuiTextField-root {
+  margin-bottom: 16px;
+}
+
+.login-form-container .MuiAlert-root {
+  margin-top: 16px;
+}
