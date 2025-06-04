@@ -27,22 +27,7 @@ function UserPhotos({ user }) {
         setLoading(false);
       });
   }, [userId]);
-  //   fetchModel(`/user/${userId}`).then((userData) => {
-  //     if (setViewingUser) setViewingUser(userData);
-  //   });
-  //   // Lấy ảnh như cũ
-  //   fetchModel(`/photo/${userId}`)
-  //     .then((data) => {
-  //       setPhotos(data);
-  //       setLoading(false);
-  //     })
-  //     .catch(() => {
-  //       setError("Failed to load photos.");
-  //       setLoading(false);
-  //     });
-  //   // Khi rời khỏi trang thì clear viewingUser
-  //   return () => setViewingUser && setViewingUser(null);
-  // }, [userId, setViewingUser]);
+ 
 
   const fetchUserIfNeeded = async (id) => {
     if (userCache[id]) return userCache[id];
@@ -79,7 +64,7 @@ function UserPhotos({ user }) {
     try {
       setSubmitting((prev) => ({ ...prev, [photoId]: true }));
       const response = await axios.post(
-        `http://localhost:8081/photos/${photoId}/comment`,
+        `http://localhost:8081/comment/${photoId}`,
         { comment },
         { withCredentials: true }
       );
@@ -106,7 +91,7 @@ function UserPhotos({ user }) {
       return;
     try {
       await axios.delete(
-        `http://localhost:8081/photos/${photoId}/comment/${commentId}`,
+        `http://localhost:8081/comment/${photoId}/${commentId}`,
         { withCredentials: true }
       );
       setPhotos((prev) =>
@@ -137,7 +122,7 @@ function UserPhotos({ user }) {
     }
     try {
       await axios.put(
-        `http://localhost:8081/photos/${photoId}/comment/${commentId}`,
+        `http://localhost:8081/comment/${photoId}/${commentId}`,
         { comment: editValue },
         { withCredentials: true }
       );

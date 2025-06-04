@@ -64,7 +64,7 @@ function LoginRegister({ onLogin }) {
     }
 
     try {
-      const url = isRegister ? "/user" : "/admin/login";
+      const url = isRegister ? "/admin/register" : "/admin/login";
       const response = await axios.post(
         `http://localhost:8081${url}`,
         {

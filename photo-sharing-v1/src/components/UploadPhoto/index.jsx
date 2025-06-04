@@ -33,7 +33,7 @@ function UploadPhoto({ user }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:8081/photos/new",
+        "http://localhost:8081/photo/new",
         formData,
         {
           withCredentials: true,
@@ -44,7 +44,7 @@ function UploadPhoto({ user }) {
       setSuccess(response.data.message);
       setFile(null);
       // Wait 1 second before redirecting so the user can see the success message
-      setTimeout(() => navigate(`/photos/${user._id}`), 1000);
+      setTimeout(() => navigate(`/photo/${user._id}`), 1000);
     } catch (err) {
       setError(err.response?.data?.error || "Unable to upload photo");
       console.error("Upload error:", err); // Log detailed error
